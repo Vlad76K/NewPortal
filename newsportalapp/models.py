@@ -33,6 +33,7 @@ class Author(models.Model):
                     })
         return items0
 
+    # обновление рейтингов авторов
     @property
     def update_rating(self):
         post_rating_sum = 0
@@ -100,11 +101,11 @@ class Post(models.Model):
     def post_info(self):
         items0 = []
         QS1 = Post.objects.all().order_by('-post_rating').values('post_author', 'post_date', 'post_rating', 'post_title', 'pk')
-        post_au = QS1[0].get('post_author', -1)
-        post_rt = QS1[0].get('post_rating', -999)
-        post_tt = QS1[0].get('post_title', '-')
-        post_dt = QS1[0].get('post_date', None)
-        post_pk = QS1[0].get('pk', -1)
+        post_au = QS1[0].get('post_author', -1)    # автор поста
+        post_rt = QS1[0].get('post_rating', -999)  # рэйтинг поста
+        post_tt = QS1[0].get('post_title', '-')    # заголовок поста
+        post_dt = QS1[0].get('post_date', None)    # дата поста
+        post_pk = QS1[0].get('pk', -1)             # первичный ключ поста
 
         author_name = '-'
         if post_au != -1:
@@ -116,11 +117,11 @@ class Post(models.Model):
             post_prw = p.preview()
 
         items0.append({
-            'username': author_name,
-            'post_rating': post_rt,
-            'post_title': post_tt,
-            'post_prw': post_prw,
-            'post_dt': post_dt
+            'username': author_name,  # фио автора
+            'post_rating': post_rt,   # рэйтинг поста
+            'post_title': post_tt,    # заголовок поста
+            'post_prw': post_prw,     # превью поста
+            'post_dt': post_dt        # дата поста
         })
         return items0
 
@@ -140,10 +141,10 @@ class Post(models.Model):
             comm_tx = QS3[i].get('comment_text', '-')
 
             items0.append({
-                'comment_datetime': comm_dt,
-                'comment_user': comm_ur,
-                'comment_rating': comm_rt,
-                'comment_text': comm_tx
+                'comment_datetime': comm_dt,  # дата комента
+                'comment_user': comm_ur,      # автор комента
+                'comment_rating': comm_rt,    # рэйтинг комента
+                'comment_text': comm_tx       # текст комента
             })
 
         return items0
