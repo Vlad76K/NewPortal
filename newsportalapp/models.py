@@ -149,6 +149,11 @@ class Post(models.Model):
 
         return items0
 
+    # def PostListView(self):
+    #     serv_list = self.objects.all().order_by('name')
+    #     return render(request, 'posts.html', {'serv_list': serv_list})
+    #     pass
+
 
 # Промежуточная модель для связи «многие ко многим»:
 class PostCategory(models.Model):
