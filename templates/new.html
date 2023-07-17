@@ -1,0 +1,32 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+<!-- Название у нас будет Post -->
+{% block title %}
+Post
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим сам пост, идентификатор которого был передан в url -->
+{% block content %}
+<!--{{ post_info }}-->
+   {% if  new.post_type == 'N'%}
+      <h1>Новость</h1>
+      <b>{{ new.post_title|censor }}</b>
+      <br>
+      Корреспондент: {{ new.post_author.author_user }}
+   {% else %}
+      <h3>Статья</h3>
+      <h1>{{ new.post_title|censor }}</h1>
+      <br>
+      Автор: {{ new.post_author.author_user }}
+   {% endif %}
+   <br>
+   Дата: {{ new.post_date|date:"d M Y" }}
+   <br>
+   Рейтинг: {{ new.post_rating }}
+   <br>
+   {{ new.post_text|censor }}
+{% endblock content %}

@@ -1,4 +1,5 @@
 # Create your models here.
+from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Sum
 from django.db import utils
@@ -95,6 +96,10 @@ class Post(models.Model):
     # - Метод preview(), который возвращает начало статьи (предварительный просмотр) длиной 124 символа и добавляет многоточие в конце.
     def preview(self):
         return str(self.post_text)[0:125] + '...'
+
+    @property
+    def paginator(self):
+        pass
 
     # Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи,
     # основываясь на лайках / дислайках к этой статье.
