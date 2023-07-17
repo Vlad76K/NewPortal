@@ -15,14 +15,29 @@ FAILED_WORDS = (
 # что это именно фильтр для шаблонов, а не простая функция.
 @register.filter()
 def censor(value):
-   """
-   value: значение, к которому нужно применить фильтр
-   """
-   # Возвращаемое функцией значение подставится в шаблон.
-   value_new = value
-   for i in range(len(FAILED_WORDS)):
-       sub_str = FAILED_WORDS[i][0:1] + '***'
-       while str(value_new).find(FAILED_WORDS[i]) != -1:
-           value_new = value_new.replace(FAILED_WORDS[i], sub_str)
-   return f'{value_new}'
+    """
+    value: значение, к которому нужно применить фильтр
+    """
+    if type(value) != str:
+        raise ValueError("Применять данный фильтр следует к строке!")
+
+    try:
+        # Возвращаемое функцией значение подставится в шаблон.
+        # value_new = value
+        value_list = value.split()
+        value_list_c = value_list.copy()
+
+        for i in range(len(FAILED_WORDS)):  # перебираем список запрещенных слов
+            j = 0
+            for value_list_word in value_list_c:            # перебираем слова из проверяемого текста
+                if value_list_word == FAILED_WORDS[i]:     # если находим совпадение
+                    value_list_word_new = value_list_word[:1:1] + '*'*(len(value_list_word)-1)
+                    value_list.insert(j, value_list_word_new)
+                    value_list.pop(j+1)
+                j += 1
+    except ValueError as error:
+        print(error)
+    else:
+        value_new = ' '.join(value_list)
+        return f'{value_new}'
 
