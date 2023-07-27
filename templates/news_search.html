@@ -18,13 +18,15 @@ Posts
    <h5><span style = "color: magenta"> {{ next_action|default_if_none:"Чуть позже сообщим о новой акции!" }} </span></h5>
    <br>
 
-<!--   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}-->
-<!--   <form action="" method="get">-->
-<!--       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}-->
-<!--       {{ filterset.form.as_p }}-->
-<!--       {# Добавим кнопку отправки данных формы #}-->
-<!--       <input type="submit" value="Найти" />-->
-<!--   </form>-->
+   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+       {{ filterset.form.as_p }}
+       {# Добавим кнопку отправки данных формы #}
+       <input type="submit" value="Найти" />
+       <br>
+       <br>
+   </form>
 
    {% if news %}
       {% for serv in object_list %}
@@ -39,17 +41,24 @@ Posts
           <br><br>
       {% endfor %}
    {% else %}
-      <h2>Новостей нет!</h2>
+      <h2>Ничего не найдено!</h2>
    {% endif %}
 
    {# Добавляем пагинацию на страницу #}
+<!--   {% for p in paginator.page_range %}-->
+<!--       {% if page_obj.number == p %}-->
+<!--            <li class="page-num page-num-selected">{{ p }}</li>-->
+<!--            {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2  %}-->
+<!--            <li class="page-num">-->
+<!--            <a href="?page={{ p }}">{{ p }}</a></li>-->
+<!--       {% endif %}-->
+<!--   {% endfor %}-->
 
    {# Информация о предыдущих страницах #}
    {% if page_obj.has_previous %}
        <a href="?{% url_replace page=1 %}">1</a>
        {% if page_obj.previous_page_number != 1 %}
-
-           ...
+<!--           ...-->
            <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
        {% endif %}
    {% endif %}

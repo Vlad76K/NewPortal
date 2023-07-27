@@ -6,6 +6,8 @@ from django.db import utils
 from django.contrib.auth.models import User
 import datetime
 
+from django.urls import reverse
+
 article = 'A'
 news = 'N'
 POSTTYPE = [(article, 'Статья'),
@@ -18,6 +20,9 @@ class Author(models.Model):
     author_user = models.OneToOneField(User, on_delete=models.CASCADE)  # - cвязь «один к одному» с встроенной моделью пользователей User;
     author_rating = models.IntegerField(default=0)                      # - рейтинг пользователя.Ниже будет дано описание того, как этот рейтинг можно посчитать.
     # _author_rating = models.IntegerField(default=0, db_column='author_rating') # - рейтинг пользователя.Ниже будет дано описание того, как этот рейтинг можно посчитать.
+
+    # def __str__(self):
+    #     return Author.objects.filter(pk=self.author_user).values('user__username').first()
 
     def get_best_author(self):
         # определяем автора с максимальным рейтингом и вытаскиваем его Id (ключ Author - User)
@@ -63,18 +68,19 @@ class Author(models.Model):
         self.author_rating = post_rating_sum*3 + comments_author_rating_sum + comments_post_rating_sum
         self.save()
 
-
 class Category(models.Model):
     # Категории новостей / статей — темы, которые они отражают(спорт, политика, образование и т.д.).
     # Имеет единственное поле (должно быть уникальным (в определении поля необходимо написать параметр unique = True)):
     category_name = models.CharField(max_length=50, unique=True)  # - название категории.
 
+    def __str__(self):
+        return self.category_name
 
 # Эта модель должна содержать в себе статьи и новости, которые создают пользователи. Каждый объект может иметь одну или несколько категорий.
 class Post(models.Model):
     # Модель должна включать следующие поля:
     post_author = models.ForeignKey(Author, on_delete=models.CASCADE)          # - связь «один ко многим» с моделью Author;
-    post_type = models.CharField(max_length=2, choices=POSTTYPE, default='N')  # - поле с выбором — «статья» или «новость»;
+    post_type = models.CharField(max_length=2, choices=POSTTYPE) #, default='N')  # - поле с выбором — «статья» или «новость»;
     post_date = models.DateTimeField(auto_now_add=datetime.datetime.now())     # - автоматически добавляемая дата и время создания;
     post_category = models.ManyToManyField(Category, through='PostCategory')   # - связь «многие ко многим» с моделью Category(с дополнительной моделью PostCategory);
     post_title = models.CharField(max_length=124)                              # - заголовок статьи / новости;
@@ -129,6 +135,12 @@ class Post(models.Model):
             'post_dt': post_dt        # дата поста
         })
         return items0
+
+    # def __str__(self):
+    #     return f'{self.post_text.title()}: {self.post_title[:10]}'
+
+    def get_absolute_url(self):
+        return reverse('post_detail', args=[str(self.id)])
 
     # Вывести все комментарии(дата, пользователь, рейтинг, текст) к статье.
     def post_all_comments(self):
