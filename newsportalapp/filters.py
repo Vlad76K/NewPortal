@@ -5,11 +5,13 @@ from django_filters import FilterSet, ModelMultipleChoiceFilter, CharFilter, Dat
 from .models import Post, Category, Author, User
 
 
-# Создаем свой набор фильтров для модели Product.
+# Создаем свой набор фильтров для модели Post.
 class PostFilter(FilterSet):
     # Фильтр по автору поста
+    # post_author = CharFilter(label='Автор заметки:', field_name='author__user__username', lookup_expr='icontains')
     post_author = ModelChoiceFilter(label='Автор заметки:', field_name='post_author_id',
-                                    queryset=User.objects.all(),
+                                    # queryset=Author.objects.all().values('author__user__username'),
+                                    queryset=Author.objects.all(),
                                     widget=forms.Select(attrs={'class': 'form-control'}), )
     # Нечеткий поиск в заголовке (ищем вхождение указанного пользователем текста)
     post_title = CharFilter(label='Заголовок заметки:', field_name='post_title', lookup_expr='icontains')
@@ -33,7 +35,7 @@ class PostFilter(FilterSet):
         model = Post
         # В fields мы описываем по каким полям модели будет производиться фильтрация.
         fields = {
-            'post_type': ['exact'],
+        #     'post_type': ['exact'],
         #     # поиск по заголовку
         #     'post_title': ['icontains'],
         #     'post_text': ['icontains'],
