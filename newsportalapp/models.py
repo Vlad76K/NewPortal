@@ -21,6 +21,12 @@ class Author(models.Model):
     author_rating = models.IntegerField(default=0)                      # - рейтинг пользователя.Ниже будет дано описание того, как этот рейтинг можно посчитать.
     # _author_rating = models.IntegerField(default=0, db_column='author_rating') # - рейтинг пользователя.Ниже будет дано описание того, как этот рейтинг можно посчитать.
 
+    # def get_author_name(self):
+    #     a = Author.objects.filter(pk=self.author_user).values('author_user_id').first()
+    #     u = User.objects.filter(pk=a.values()).values('username')
+    #     for u_name in u[0].values():
+    #         return u_name
+
     # def __str__(self):
     #     return Author.objects.filter(pk=self.author_user).values('user__username').first()
 

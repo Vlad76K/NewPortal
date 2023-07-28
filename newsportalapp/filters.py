@@ -1,17 +1,14 @@
 from django import forms
 from django_filters import FilterSet, ModelMultipleChoiceFilter, CharFilter, DateFilter, RangeFilter, ModelChoiceFilter
-
-# NumericRangeFilter #, ModelChoiceFilter
 from .models import Post, Category, Author, User
 
 
 # Создаем свой набор фильтров для модели Post.
 class PostFilter(FilterSet):
     # Фильтр по автору поста
-    # post_author = CharFilter(label='Автор заметки:', field_name='author__user__username', lookup_expr='icontains')
     post_author = ModelChoiceFilter(label='Автор заметки:', field_name='post_author_id',
-                                    # queryset=Author.objects.all().values('author__user__username'),
                                     queryset=Author.objects.all(),
+                                    empty_label='Любой',
                                     widget=forms.Select(attrs={'class': 'form-control'}), )
     # Нечеткий поиск в заголовке (ищем вхождение указанного пользователем текста)
     post_title = CharFilter(label='Заголовок заметки:', field_name='post_title', lookup_expr='icontains')
@@ -25,22 +22,15 @@ class PostFilter(FilterSet):
                            lookup_expr='gt')
     # Фильтр по категории поста. Предполагает фильтр по нескольким категориям
     post_category = ModelMultipleChoiceFilter(field_name='postcategory__category_connection',
-        queryset=Category.objects.all(), label='Категория',
-        conjoined=True  # в этом случае пост должен соответсвовать всем выбранным категориям
-                        # для выбора "либо-либо", установить значение False
+                                              queryset=Category.objects.all(), label='Категория',
+                                              conjoined=True  # в этом случае пост должен соответсвовать
+                                                              # всем выбранным категориям
+                                                              # для выбора "либо-либо", установить значение False
     )
 
     class Meta:
         # В Meta классе мы должны указать Django модель, в которой будем фильтровать записи.
         model = Post
         # В fields мы описываем по каким полям модели будет производиться фильтрация.
-        fields = {
-        #     'post_type': ['exact'],
-        #     # поиск по заголовку
-        #     'post_title': ['icontains'],
-        #     'post_text': ['icontains'],
-        #     'post_rating': [
-        #         'lt',  # рейтинг должен быть меньше или равен указанному
-        #         'gt',  # рейтинг должен быть больше или равен указанному
-        #     ],
-        }
+        fields = ['post_author', 'post_title', 'post_text', 'post_rating', 'post_date']
+
