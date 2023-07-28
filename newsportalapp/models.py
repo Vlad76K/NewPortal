@@ -27,9 +27,6 @@ class Author(models.Model):
     #     for u_name in u[0].values():
     #         return u_name
 
-    # def __str__(self):
-    #     return Author.objects.filter(pk=self.author_user).values('user__username').first()
-
     def get_best_author(self):
         # определяем автора с максимальным рейтингом и вытаскиваем его Id (ключ Author - User)
         QS_ba = Author.objects.all().order_by('-author_rating').values('author_user_id')
@@ -73,6 +70,10 @@ class Author(models.Model):
 
         self.author_rating = post_rating_sum*3 + comments_author_rating_sum + comments_post_rating_sum
         self.save()
+
+    def __str__(self):
+        return self.author_user.username
+
 
 class Category(models.Model):
     # Категории новостей / статей — темы, которые они отражают(спорт, политика, образование и т.д.).
