@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-# подключаем ещё приложения
+    # подключаем ещё приложения
     'newsportalapp',
     'django.contrib.sites',
     'django.contrib.flatpages',
@@ -46,7 +46,13 @@ INSTALLED_APPS = [
     'fpages',
 
     'sign',
-    'protect',
+    'protectapp',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # ... include the providers you want to enable:
+    'allauth.socialaccount.providers.google',
 ]
 
 SITE_ID = 1
@@ -76,9 +82,20 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
             ],
         },
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 WSGI_APPLICATION = 'NewsPortal_django.wsgi.application'
@@ -141,5 +158,12 @@ STATICFILES_DIRS = [
 ]
 
 # LOGIN_URL = 'http://127.0.0.1:8000/news/'
-LOGIN_URL = 'sign/login/'
+# LOGIN_URL = 'sign/login/'
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
+
+ACCOUNT_EMAIL_REQUIRED = True # поле email является обязательным
+ACCOUNT_UNIQUE_EMAIL = True   # поле email является уникальным
+ACCOUNT_USERNAME_REQUIRED = False       #  username теперь необязательный
+ACCOUNT_AUTHENTICATION_METHOD = 'email' # аутентификация будет происходить посредством электронной почты
+ACCOUNT_EMAIL_VERIFICATION = 'none'     # верификация почты отсутствует
