@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'django_filters',
     'fpages',
+
+    'sign',
+    'protect',
 ]
 
 SITE_ID = 1
@@ -136,3 +139,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
+
+# LOGIN_URL = 'http://127.0.0.1:8000/news/'
+LOGIN_URL = 'sign/login/'
+LOGIN_REDIRECT_URL = '/'
