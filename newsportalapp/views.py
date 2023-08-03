@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import PermissionRequiredMixin
+# from django.http import HttpResponseRedirect
 
 # Импортируем класс, который говорит нам о том,
 # что в этом представлении мы будем выводить список объектов из БД
@@ -64,7 +65,7 @@ class PostDetail(DetailView):
 #     return render(request, 'news_edit.html', {'form': form})
 
 # Добавляем новое представление для создания постов.
-class PostCreate(CreateView):
+class PostCreate(PermissionRequiredMixin, CreateView):
     # Указываем нашу разработанную форму
     form_class = PostForm
     # модель постов
@@ -72,6 +73,8 @@ class PostCreate(CreateView):
     # и новый шаблон, в котором используется форма.
     template_name = 'news_create.html'
     success_url = '../../../'
+
+    permission_required = ('newsportalapp.add_post', )
 
     def form_valid(self, form):
         if form.is_valid():
@@ -90,7 +93,9 @@ class PostCreate(CreateView):
 
 
 # Добавляем представление для изменения товара.
-class PostUpdate(LoginRequiredMixin, UpdateView):
+class PostUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = ('newsportalapp.update_post', )
+
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
