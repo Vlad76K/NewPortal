@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+ACCOUNT_FORMS = {'signup': 'sign.models.BasicSignupForm'}
+# ACCOUNT_FORMS = {'signup': 'allauth.account.forms.BasicSignupForm'}
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,8 +28,7 @@ SECRET_KEY = 'django-insecure-24ai8kd&0c%bqng6vftw03v3lej!)!2-b5sa#xsoynvscsd+_o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # Application definition
 
