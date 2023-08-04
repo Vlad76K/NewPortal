@@ -1,7 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
 # from django.http import HttpResponseRedirect
+
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 
 # Импортируем класс, который говорит нам о том,
 # что в этом представлении мы будем выводить список объектов из БД
@@ -93,12 +97,14 @@ class PostCreate(PermissionRequiredMixin, CreateView):
 
 
 # Добавляем представление для изменения товара.
+@method_decorator(login_required, name='dispatch')
 class PostUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
-    permission_required = ('newsportalapp.update_post', )
+    permission_required = ('newsportalapp.change_post', )
 
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
+    # template_name = 'prodected_page.html'
     success_url = '../../../'
 
 
