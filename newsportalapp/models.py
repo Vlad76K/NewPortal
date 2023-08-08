@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Sum
 from django.db import utils
 from django.contrib.auth.models import User
-import datetime
+from datetime import datetime
 
 from django.urls import reverse
 
@@ -14,18 +14,21 @@ POSTTYPE = [(article, 'Статья'),
             (news, 'Новость')]
 
 
+class Category(models.Model):
+    # Категории новостей / статей — темы, которые они отражают(спорт, политика, образование и т.д.).
+    # Имеет единственное поле (должно быть уникальным (в определении поля необходимо написать параметр unique = True)):
+    category_name = models.CharField(max_length=50, unique=True)  # - название категории.
+
+    def __str__(self):
+        return self.category_name
+
+
 # Модель, содержащая объекты всех авторов.
 class Author(models.Model):
     # Имеет следующие поля:
-    author_user = models.OneToOneField(User, on_delete=models.CASCADE)  # - cвязь «один к одному» с встроенной моделью пользователей User;
-    author_rating = models.IntegerField(default=0)                      # - рейтинг пользователя.Ниже будет дано описание того, как этот рейтинг можно посчитать.
-    # _author_rating = models.IntegerField(default=0, db_column='author_rating') # - рейтинг пользователя.Ниже будет дано описание того, как этот рейтинг можно посчитать.
-
-    # def get_author_name(self):
-    #     a = Author.objects.filter(pk=self.author_user).values('author_user_id').first()
-    #     u = User.objects.filter(pk=a.values()).values('username')
-    #     for u_name in u[0].values():
-    #         return u_name
+    author_user = models.OneToOneField(User, on_delete=models.CASCADE)               # - cвязь «один к одному» с встроенной моделью пользователей User
+    author_rating = models.IntegerField(default=0)                                   # - рейтинг пользователя
+    author_subscribers = models.ManyToManyField(Category, through='AuthorCategory')  # - пользователи, подписанные на обновления в конкретной категории
 
     def get_best_author(self):
         # определяем автора с максимальным рейтингом и вытаскиваем его Id (ключ Author - User)
@@ -75,20 +78,28 @@ class Author(models.Model):
         return self.author_user.username
 
 
-class Category(models.Model):
-    # Категории новостей / статей — темы, которые они отражают(спорт, политика, образование и т.д.).
-    # Имеет единственное поле (должно быть уникальным (в определении поля необходимо написать параметр unique = True)):
-    category_name = models.CharField(max_length=50, unique=True)  # - название категории.
+class Appointment(models.Model):
+    date = models.DateField(default=datetime.utcnow, )
+    client_name = models.CharField(max_length=200)
+    message = models.TextField()
 
     def __str__(self):
-        return self.category_name
+        return f'{self.client_name}: {self.message}'
+
+
+class AuthorCategory(models.Model):
+    # - связь «один ко многим» с моделью Author;
+    author_connection = models.ForeignKey(Author, on_delete=models.CASCADE)
+    # - связь «один ко многим» с моделью Category.
+    category_connection = models.ForeignKey(Category, on_delete=models.CASCADE)
+
 
 # Эта модель должна содержать в себе статьи и новости, которые создают пользователи. Каждый объект может иметь одну или несколько категорий.
 class Post(models.Model):
     # Модель должна включать следующие поля:
     post_author = models.ForeignKey(Author, on_delete=models.CASCADE)          # - связь «один ко многим» с моделью Author;
     post_type = models.CharField(max_length=2, choices=POSTTYPE) #, default='N')  # - поле с выбором — «статья» или «новость»;
-    post_date = models.DateTimeField(auto_now_add=datetime.datetime.now())     # - автоматически добавляемая дата и время создания;
+    post_date = models.DateTimeField(auto_now_add=datetime.now())     # - автоматически добавляемая дата и время создания;
     post_category = models.ManyToManyField(Category, through='PostCategory')   # - связь «многие ко многим» с моделью Category(с дополнительной моделью PostCategory);
     post_title = models.CharField(max_length=124)                              # - заголовок статьи / новости;
     post_text = models.TextField()                                             # - текст статьи / новости;
@@ -193,7 +204,7 @@ class Comment(models.Model):
     comment_post = models.ForeignKey(Post, on_delete=models.CASCADE) # - связь «один ко многим» с моделью Post;
     comment_user = models.ForeignKey(User, on_delete=models.CASCADE) # - связь «один ко многим» со встроенной моделью User (комментарии может оставить любой пользователь, необязательно автор);
     comment_text = models.TextField()                                # - текст комментария;
-    comment_datetime = models.DateTimeField(auto_now_add=datetime.datetime.now()) # - дата и время создания комментария;
+    comment_datetime = models.DateTimeField(auto_now_add=datetime.now()) # - дата и время создания комментария;
     comment_rating = models.IntegerField()                           # - рейтинг комментария
 
     # - Метод like() увеличивает рейтинг на единицу.

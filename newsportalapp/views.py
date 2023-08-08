@@ -1,8 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
-# from django.http import HttpResponseRedirect
+
+from django.core.mail import send_mail
+from django.shortcuts import render, redirect, reverse
+from django.views import View
+from .models import Appointment, Post, Author
 
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
@@ -12,7 +17,6 @@ from django.views.generic import TemplateView
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from .forms import PostForm
-from .models import Post
 from datetime import datetime
 from .filters import PostFilter
 
@@ -95,6 +99,37 @@ class PostCreate(PermissionRequiredMixin, CreateView):
 
         return super().form_valid(form)
 
+    def get(self, request, *args, **kwargs):
+        return render(request, 'make_appointment.html', {})
+
+    def post(self, request, *args, **kwargs):
+        appointment = Appointment(
+            # date=datetime.strptime(request.POST['date'], '%Y-%m-%d'),
+            # client_name=request.POST['client_name'],
+            # message=request.POST['message'],
+            date=datetime.strptime('2023-08-08', '%Y-%m-%d'),
+            client_name='client_name',
+            message='message',
+        )
+        appointment.save()
+
+        # отправляем письмо
+        send_mail(
+            # имя клиента и дата записи будут в теме для удобства
+            subject=f'{appointment.client_name} {appointment.date.strftime("%Y-%M-%d")}',
+            # сообщение с кратким описанием проблемы
+            message=appointment.message,
+            # здесь указываете почту, с которой будете отправлять (об этом попозже)
+            from_email='peterbadson@yandex.ru',
+            # здесь список получателей. Например, секретарь, сам врач и т. д.
+            recipient_list=[]
+        )
+        self.success_url = 'appointments:make_appointment.html'
+
+        return redirect(self.success_url)
+        # return HttpResponseRedirect(reverse('appointments_post:make_appointment.html'))
+
+
 
 # Добавляем представление для изменения товара.
 @method_decorator(login_required, name='dispatch')
@@ -142,3 +177,37 @@ class PostSearch(ListView):
         context['filterset'] = self.filterset
         context['time_now'] = datetime.utcnow()
         return context
+
+
+class SubscribersView(View):
+    # Указываем модель, объекты которой мы будем выводить
+    model = Post
+    # Поле, которое будет использоваться для сортировки объектов
+    ordering = '-post_date'
+    # Указываем имя шаблона, в котором будут все инструкции о том, как именно пользователю должны быть показаны наши объекты
+    template_name = 'news_search.html'
+    # Это имя списка, в котором будут лежать все объекты. Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
+    context_object_name = 'news'
+    paginate_by = 3  # вот так мы можем указать количество записей на странице
+
+    def get(self, request, *args, **kwargs):
+        return render(request, 'make_appointment.html', {})
+
+    def post(self, request, *args, **kwargs):
+        appointment = Appointment(
+            date=datetime.strptime(request.POST['date'], '%Y-%m-%d'),
+            client_name=request.POST['client_name'],
+            message=request.POST['message'],
+        )
+        appointment.save()
+
+        # отправляем письмо
+        send_mail(
+            subject=f'{appointment.client_name} {appointment.date.strftime("%Y-%M-%d")}',
+            # имя клиента и дата записи будут в теме для удобства
+            message=appointment.message,  # сообщение с кратким описанием проблемы
+            from_email='peterbadson@yandex.ru',  # здесь указываете почту, с которой будете отправлять (об этом попозже)
+            recipient_list=[]  # здесь список получателей. Например, секретарь, сам врач и т. д.
+        )
+
+        return redirect('appointments_post:make_appointment')

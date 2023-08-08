@@ -25,4 +25,5 @@ urlpatterns = [
     path('', include('protectapp.urls')),
     path('sign/', include('sign.urls')),
     path('accounts/', include('allauth.urls')),
+    path('appointments/', include('newsportalapp.urls', namespace='appointments')),
 ]

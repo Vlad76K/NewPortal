@@ -164,8 +164,14 @@ STATICFILES_DIRS = [
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
-ACCOUNT_EMAIL_REQUIRED = True # поле email является обязательным
-ACCOUNT_UNIQUE_EMAIL = True   # поле email является уникальным
-ACCOUNT_USERNAME_REQUIRED = False       #  username теперь необязательный
-ACCOUNT_AUTHENTICATION_METHOD = 'email' # аутентификация будет происходить посредством электронной почты
-ACCOUNT_EMAIL_VERIFICATION = 'none'     # верификация почты отсутствует
+ACCOUNT_EMAIL_REQUIRED = True            # поле email является обязательным
+ACCOUNT_UNIQUE_EMAIL = True              # поле email является уникальным
+ACCOUNT_USERNAME_REQUIRED = False        #  username теперь необязательный
+ACCOUNT_AUTHENTICATION_METHOD = 'email'  # аутентификация будет происходить посредством электронной почты
+ACCOUNT_EMAIL_VERIFICATION = 'none'      # верификация почты отсутствует
+
+EMAIL_HOST = 'smtp.yandex.ru'  # адрес сервера Яндекс-почты для всех один и тот же
+EMAIL_PORT = 465               # порт smtp сервера тоже одинаковый
+EMAIL_HOST_USER = 'korwin'     # ваше имя пользователя, например, если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
+EMAIL_HOST_PASSWORD = 'M7[1/3NTJ^Vc6aaQ'  # пароль от почты
+EMAIL_USE_SSL = True  # Яндекс использует ssl, подробнее о том, что это, почитайте в дополнительных источниках, но включать его здесь обязательно

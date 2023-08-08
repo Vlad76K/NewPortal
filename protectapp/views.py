@@ -9,3 +9,4 @@ class IndexView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['is_not_premium'] = not self.request.user.groups.filter(name='premium').exists()
         return context
+
