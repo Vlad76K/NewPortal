@@ -33,4 +33,3 @@ class PostFilter(FilterSet):
         model = Post
         # В fields мы описываем по каким полям модели будет производиться фильтрация.
         fields = ['post_author', 'post_title', 'post_text', 'post_rating', 'post_date']
-

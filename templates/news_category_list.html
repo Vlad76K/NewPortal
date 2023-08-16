@@ -1,0 +1,32 @@
+{% load static %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+<table class="table_sort">
+    <thead>
+        <tr>
+            <th>Пост</th>
+            <th>Автор</th>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Рейтинг</th>
+            <th>Заголовок</th>
+            <th>Категория</th>
+        </tr>
+    </thead>
+    {% for post_n in category_news_list %}
+    <tr>
+        <td>{{ post_n.pk }}</td>
+        <td>{{ post_n.post_author }}</td>
+        <td>{{ post_n.post_date }}</td>
+        <td>{{ post_n.get_post_type_name }}</td>
+        <td>{{ post_n.post_rating }}</td>
+        <td class="leftAligned"><a href="../../"{{ post_n.pk }}>{{ post_n.post_title|truncatechars:20|censor }}</a></td>
+        <td>{% for category in post_n.post_category.all %}
+                <a href = "categories/" {{ category.id }}>{{ category }}</a>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>

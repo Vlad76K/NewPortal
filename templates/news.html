@@ -11,12 +11,23 @@ Posts
 
 <!-- В контенте на странице мы выводим все посты -->
 {% block content %}
-   <h1><span style = "color: blue"> Новости для Вас </span></h1>
-   <span style = "color: red"> Всего новостей/статей: {{ news|length }} ------ Текущая дата: {% current_time '%b %d %Y %A' %}</span>
-   <!-- Если в переменной next_sale будет None,
-   то выведется указанный в фильтре текст -->
-   <h5><span style = "color: magenta"> {{ next_action|default_if_none:"Чуть позже сообщим о новой акции!" }} </span></h5>
-   <br>
+<!--   {# Добавим кнопку отправки данных формы #}-->
+<!--   {% if not us %}-->
+<!--       <a href="{% url 'signup' %}">-->
+<!--           <input type="submit" value="Создать" />-->
+<!--       </a>-->
+<!--   {% endif %}-->
+    <br>
+    <button class ="button"><a href = "../news/client_subscriber/">Подписаться на новости</a></button>
+    <br>
+    <br>
+
+    <h1><span style = "color: blue"> Новости для Вас </span></h1>
+    <span style = "color: red"> Всего новостей/статей: {{ news|length }} ------ Текущая дата: {% current_time '%b %d %Y %A' %}</span>
+    <!-- Если в переменной next_sale будет None,
+    то выведется указанный в фильтре текст -->
+    <h5><span style = "color: magenta"> {{ next_action|default_if_none:"Чуть позже сообщим о новой акции!" }} </span></h5>
+    <br>
 
 <!--   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}-->
 <!--   <form action="" method="get">-->
@@ -26,21 +37,21 @@ Posts
 <!--       <input type="submit" value="Найти" />-->
 <!--   </form>-->
 
-   {% if news %}
-      {% for serv in object_list %}
-          <!-- Выводим заголовок-->
-          <tr><td><h3>{{ serv.post_title|censor }}</h3></td></tr>
-          <!-- Выводим автора -->
-          <!--<td><h4>{{ serv.post_author.author_user }}</h4></td>-->
-          <!-- Выводим дату публикации -->
-          <tr><td><h5>Дата публикации: {{ serv.post_date|date:"d.m.Y" }}</h5></td></tr>
-          <!-- Выводим 20 символов текста статьи -->
-          <tr><td>{{ serv.preview|censor|truncatewords:20 }}</td></tr>
-          <br><br>
-      {% endfor %}
-   {% else %}
-      <h2>Новостей нет!</h2>
-   {% endif %}
+    {% if news %}
+       {% for serv in object_list %}
+            <!-- Выводим заголовок-->
+            <tr><td><h3><a href="../news/{{serv.id}}">{{ serv.post_title|censor }}</a></h3></td></tr>
+            <!-- Выводим автора -->
+            <!--<td><h4>{{ serv.post_author.author_user }}</h4></td>-->
+            <!-- Выводим дату публикации -->
+            <tr><td><h5>Дата публикации: {{ serv.post_date|date:"d.m.Y" }}</h5></td></tr>
+            <!-- Выводим 20 символов текста статьи -->
+            <tr><td>{{ serv.preview|censor|truncatewords:20 }}</td></tr>
+            <br><br>
+       {% endfor %}
+    {% else %}
+        <h2>Новостей нет!</h2>
+    {% endif %}
 
    {# Добавляем пагинацию на страницу #}
 

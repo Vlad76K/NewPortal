@@ -1,4 +1,5 @@
 # Create your models here.
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import models
 from django.db.models import Sum
@@ -6,6 +7,7 @@ from django.db import utils
 from django.contrib.auth.models import User
 from datetime import datetime
 
+from django.shortcuts import render
 from django.urls import reverse
 
 article = 'A'
@@ -13,11 +15,21 @@ news = 'N'
 POSTTYPE = [(article, 'Статья'),
             (news, 'Новость')]
 
+@login_required
+def subscribe(request, pk):
+    user = request.user
+    category = Category.objects.gqt(id=pk)
+    category.category_subscribe.add(user)
+
+    message = f'Уважаемый, {user}! Вы успешно подписались на рассылку новостей в выбранных категориях!'
+    return render(request, 'client_subscriber.html', {'category': category, 'message': message})
+
 
 class Category(models.Model):
     # Категории новостей / статей — темы, которые они отражают(спорт, политика, образование и т.д.).
     # Имеет единственное поле (должно быть уникальным (в определении поля необходимо написать параметр unique = True)):
     category_name = models.CharField(max_length=50, unique=True)  # - название категории.
+    category_subscribe = models.ManyToManyField(User, through='SubscribeCategory')
 
     def __str__(self):
         return self.category_name
@@ -28,7 +40,7 @@ class Author(models.Model):
     # Имеет следующие поля:
     author_user = models.OneToOneField(User, on_delete=models.CASCADE)               # - cвязь «один к одному» с встроенной моделью пользователей User
     author_rating = models.IntegerField(default=0)                                   # - рейтинг пользователя
-    author_subscribers = models.ManyToManyField(Category, through='AuthorCategory')  # - пользователи, подписанные на обновления в конкретной категории
+    # author_subscribers = models.ManyToManyField(Category, through='AuthorCategory')  # - пользователи, подписанные на обновления в конкретной категории
 
     def get_best_author(self):
         # определяем автора с максимальным рейтингом и вытаскиваем его Id (ключ Author - User)
@@ -87,10 +99,24 @@ class Appointment(models.Model):
         return f'{self.client_name}: {self.message}'
 
 
-class AuthorCategory(models.Model):
-    # - связь «один ко многим» с моделью Author;
-    author_connection = models.ForeignKey(Author, on_delete=models.CASCADE)
-    # - связь «один ко многим» с моделью Category.
+# class AuthorCategory(models.Model):
+#     # - связь «один ко многим» с моделью Author;
+#     author_connection = models.ForeignKey(Author, on_delete=models.CASCADE)
+#     # - связь «один ко многим» с моделью Category.
+#     category_connection = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+
+# class Subscribers(models.Model):
+#     # - пользователи, подписанные на обновления в конкретной категории
+#     subscribe_category = models.ManyToManyField(Category, through='SubscribeCategory')
+#     # - cвязь «один к одному» с встроенной моделью пользователей User
+#     subscribe_user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
+class SubscribeCategory(models.Model):
+    # - связь «один ко многим» с моделью Subscribers
+    subscriber_connection = models.ForeignKey(User, on_delete=models.CASCADE)
+    # - связь «один ко многим» с моделью Category
     category_connection = models.ForeignKey(Category, on_delete=models.CASCADE)
 
 
@@ -124,6 +150,11 @@ class Post(models.Model):
     @property
     def paginator(self):
         pass
+
+    def get_post_type_name(self):
+        if self.post_type == 'N':
+            return 'Новость'
+        return 'Статья'
 
     # Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи,
     # основываясь на лайках / дислайках к этой статье.
@@ -196,6 +227,7 @@ class PostCategory(models.Model):
     post_connection = models.ForeignKey(Post, on_delete=models.CASCADE)
     # - связь «один ко многим» с моделью Category.
     category_connection = models.ForeignKey(Category, on_delete=models.CASCADE)
+
 
 
 # Под каждой новостью/статьёй можно оставлять комментарии, поэтому необходимо организовать их способ хранения тоже.

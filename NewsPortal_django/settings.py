@@ -49,15 +49,33 @@ INSTALLED_APPS = [
 
     'sign',
     'protectapp',
+    'accounts',
 
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    # ... include the providers you want to enable:
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.yandex',
 ]
 
+DEFAULT_FROM_EMAIL = 'Kornyushin.Vladislav@yandex.ru'  # здесь указываем уже свою ПОЛНУЮ почту, с которой будут отправляться письма
+# 'Korwin@yandex.ru'
+
 SITE_ID = 1
+
+# Provider specific settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        'APP': {
+            'client_id': '123',
+            'secret': '456',
+            'key': ''
+        }
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -76,7 +94,8 @@ ROOT_URLCONF = 'NewsPortal_django.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'),
+                 os.path.join(BASE_DIR, 'newsportalapp', 'templates', 'newsportalapp')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,9 +103,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-
-                # `allauth` needs this from django
-                'django.template.context_processors.request',
             ],
         },
     },
@@ -162,16 +178,44 @@ STATICFILES_DIRS = [
 # LOGIN_URL = 'http://127.0.0.1:8000/news/'
 # LOGIN_URL = 'sign/login/'
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/news/'
 
 ACCOUNT_EMAIL_REQUIRED = True            # поле email является обязательным
 ACCOUNT_UNIQUE_EMAIL = True              # поле email является уникальным
-ACCOUNT_USERNAME_REQUIRED = False        #  username теперь необязательный
+ACCOUNT_USERNAME_REQUIRED = False        # username теперь необязательный
 ACCOUNT_AUTHENTICATION_METHOD = 'email'  # аутентификация будет происходить посредством электронной почты
-ACCOUNT_EMAIL_VERIFICATION = 'none'      # верификация почты отсутствует
+ACCOUNT_EMAIL_VERIFICATION = 'optional'      # верификация почты отсутствует
+ACCOUNT_LOGOUT_REDIRECT_URL = '/news/'
 
-EMAIL_HOST = 'smtp.yandex.ru'  # адрес сервера Яндекс-почты для всех один и тот же
-EMAIL_PORT = 465               # порт smtp сервера тоже одинаковый
-EMAIL_HOST_USER = 'korwin'     # ваше имя пользователя, например, если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
-EMAIL_HOST_PASSWORD = 'M7[1/3NTJ^Vc6aaQ'  # пароль от почты
-EMAIL_USE_SSL = True  # Яндекс использует ssl, подробнее о том, что это, почитайте в дополнительных источниках, но включать его здесь обязательно
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 30
+ACCOUNT_FORMS = {'signup': 'newsportalapp.forms.BasicSignupForm'}
+
+SITE_URL = 'http://127.0.0.1:8000'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'             # адрес сервера Яндекс-почты для всех один и тот же
+EMAIL_PORT = 465                          # порт smtp сервера тоже одинаковый
+EMAIL_HOST_USER = 'Kornyushin.Vladislav@yandex.ru'
+# EMAIL_HOST_USER = 'Kornyushin.Vladislav'  # ваше имя пользователя, например, если ваша почта user@yandex.ru, то сюда надо писать user, иными словами, это всё то что идёт до собаки
+EMAIL_HOST_PASSWORD = 'x5gZ4LenZP}.i/#a'  # пароль от почты
+EMAIL_USE_SSL = True                      # Яндекс использует ssl, подробнее о том, что это, почитайте в дополнительных источниках, но включать его здесь обязательно
+
+ADMINS = [
+    ('Skavik', 'Korwin@yandex.ru'),  # список всех админов в формате ('имя', 'почта')
+]
+# SERVER_EMAIL = 'Kornyushin.Vladislav@yandex.ru'  # это будет у нас вместо аргумента FROM в массовой рассылке
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
+EMAIL_ADMIN = EMAIL_HOST_USER
+
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+# CELERY_BROKER_URL = 'redis://default:shy7xqX0hloY3qrSZVxhM17l5gbuGkq6@redis-14032.c280.us-central1-2.gce.cloud.redislabs.com:14032'
+# CELERY_RESULT_BACKEND = 'redis://default:shy7xqX0hloY3qrSZVxhM17l5gbuGkq6@redis-14032.c280.us-central1-2.gce.cloud.redislabs.com:14032'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'

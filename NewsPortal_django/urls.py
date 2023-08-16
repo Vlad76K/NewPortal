@@ -20,10 +20,14 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('pages/', include('django.contrib.flatpages.urls')),
-    # Делаем так, чтобы все адреса из нашего приложения (newsportalapp/urls.py) подключались к главному приложению с префиксом post/.
-    path('news/', include('newsportalapp.urls')),
+
+    # Делаем так, чтобы все адреса из нашего приложения (newsportalapp/urls.py) подключались к главному приложению
     path('', include('protectapp.urls')),
+    path('', include('newsportalapp.urls')),
+    path('news/', include('newsportalapp.urls')),
     path('sign/', include('sign.urls')),
     path('accounts/', include('allauth.urls')),
-    path('appointments/', include('newsportalapp.urls', namespace='appointments')),
+
+    # path('make_appointment/', include('newsportalapp.urls', namespace='newsportalapp')),
+    path('newsportalapps/', include(('newsportalapp.urls', 'newsportalapps'), namespace='newsportalapps')),
 ]

@@ -4,6 +4,8 @@
         <title>{% block head_title %}{% endblock head_title %}</title>
     </head>
     <body>
+    <br>
+        {% csrf_token %}
         {% block body %}
         {% block content %}
         {% endblock content %}
