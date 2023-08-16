@@ -1,20 +1,22 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.core.mail import mail_managers, EmailMultiAlternatives
 from django.template.loader import render_to_string
-
-from NewsPortal_django.newsportalapp.models import Post
+from .models import Post
 
 
 # создаём функцию-обработчик с параметрами под регистрацию сигнала
-@receiver(post_save, sender=Post)
-def notify_managers_appointment(sender, instance, created, **kwargs):
-    subject = f'{instance.client_name} {instance.date.strftime("%d %m %Y")}'
-    mail_managers(
-        subject=subject,
-        message=instance.message,
-    )
+# @receiver(post_save, sender=Post)
+# def notify_managers_appointment(sender, instance, created, **kwargs):
+#     client_name = User.objects.filter(pk=instance.post_author)
+#     # subject = f'{instance.client_name} {instance.date.strftime("%d %m %Y")}'
+#     subject = f'{client_name.get("id")} {instance.date.strftime("%d %m %Y")}'
+#     mail_managers(
+#         subject=subject,
+#         message=instance.message,
+#     )
 
 
 def send_notification(preview, pk, title, subscribers):
@@ -36,3 +38,14 @@ def notify_about_new_post(sender, instance, **kwargs):
         subscribers = [s.email for s in subscribers]
 
         send_notification(instance.preview(), instance.pk, instance.title, subscribers)
+
+
+# @receiver(post_delete, sender=Appointment)
+# def notify_managers_appointment_canceled(sender, instance, **kwargs):
+#     subject = f'{instance.client_name} has canceled his appointment!'
+#     mail_managers(
+#         subject=subject,
+#         message=f'Canceled appointment for {instance.date.strftime("%d %m %Y")}',
+#     )
+#
+#     print(subject)

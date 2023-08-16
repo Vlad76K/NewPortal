@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'sign',
     'protectapp',
     'accounts',
+    'django_apscheduler',
+    # 'newsportalapp.apps.NewsportalappConfig',
 
     'allauth',
     'allauth.account',

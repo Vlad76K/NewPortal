@@ -6,8 +6,6 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 #from .tokens import account_activation_token
 from django.core.mail import EmailMessage
 
-
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import mail_admins, EmailMultiAlternatives
@@ -32,8 +30,42 @@ from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from .forms import PostForm, SubscribeForm
-from datetime import datetime
+from datetime import datetime, timedelta
 from .filters import PostFilter
+from django.conf import settings
+
+
+def wms():
+    today = datetime.now()
+    last_week = today - timedelta(days=7)
+    posts = Post.objects.filter(post_date__gte=last_week).values_list('post_category', flat=True)
+    categories = SubscribeCategory.objects.filter(category_connection_id__in=posts).values_list("subscriber_connection_id", flat=True)
+    subscribers = set(User.objects.filter(pk__in=categories).values_list('email', flat=True))
+    # ['Korwin@yandex.ru']
+    # set(Category.objects.filter(category_name__in=categories).values_list('subscribecategory__email', flat=True))
+
+    # from newsportalapp.models import User, Category, Post, SubscribeCategory
+    # a = Post.objects.filter(id__gte=80).values_list('post_category', flat=True)
+    # b = SubscribeCategory.objects.filter(category_connection_id__in=a).values_list("subscriber_connection_id", flat=True)
+    # c = User.objects.filter('pk__in'=b).values_list('email', flat=True)
+    # c
+
+    html_context = render_to_string(
+        'weekly_news.html', {
+            'link': settings.SITE_URL,
+            # 'http://127.0.0.1:8000/news/'
+            'posts': posts,
+        }
+    )
+    msg = EmailMultiAlternatives(
+        subject='Статьи за неделю',
+        body='',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=subscribers,
+    )
+    msg.attach_alternative(html_context, 'text/html')
+    msg.send()
+
 
 # @receiver(post_save, sender=PostCreate)
 def mail_notification_post_create(request, category, subscribecategory, success_url, post_id):
