@@ -12,9 +12,9 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'print_every_week_mon_8am': {
         'task': 'newsportalapp.tasks.weekly_news',
-        'schedule': 59,
-        'args': (5, ),
-        # 'schedule': crontab(hour=8, minute=0, day_of_week='monday'),
-        # 'args': (),
+        # 'schedule': 59,
+        # 'args': (5, ),
+        'schedule': crontab(hour=8, minute=0, day_of_week='monday'),
+        'args': (),
     },
 }
