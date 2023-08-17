@@ -34,6 +34,8 @@ from datetime import datetime, timedelta
 from .filters import PostFilter
 from django.conf import settings
 
+from .tasks import mail_notification_post_create
+
 
 def wms():
     today = datetime.now()
@@ -68,7 +70,7 @@ def wms():
 
 
 # @receiver(post_save, sender=PostCreate)
-def mail_notification_post_create(request, category, subscribecategory, success_url, post_id):
+def mail_data_fill(request, category, subscribecategory, success_url, post_id):
     client_username_lst = []
 
     # # отправляем письмо
@@ -101,30 +103,9 @@ def mail_notification_post_create(request, category, subscribecategory, success_
                 appointment_title = request.POST["post_title"]
                 link = f'http://127.0.0.1:8000/news/{post_id}'
 
-                # получаем наш html
-                html_content = render_to_string(
-                    'post_create_notification.html',
-                    {
-                        'link' : link,
-                        'post_title': appointment_title,
-                        'text': appointment_message,
-                        'text1': appointment_message1,
-                        'appointment_subject': appointment_subject,
-                    }
-                )
-
-                msg = EmailMultiAlternatives(
-                    # тема
-                    subject=appointment_subject,
-                    # сообщение с кратким описанием
-                    body=appointment_message,
-                    # почта, с которой будете отправлять
-                    from_email='Kornyushin.Vladislav@yandex.ru',
-                    # список получателей
-                    to=recipient_list,
-                )
-                msg.attach_alternative(html_content, "text/html")  # добавляем html
-                msg.send()  # отсылаем
+                mail_notification_post_create(
+                    link, appointment_title, appointment_message, appointment_message1,
+                    appointment_subject, recipient_list, client_username)
 
                 # send_mail(
                 #     # Категория и дата записи будут в теме для удобства
@@ -136,12 +117,6 @@ def mail_notification_post_create(request, category, subscribecategory, success_
                 #     # здесь список получателей
                 #     recipient_list=recipient_list
                 # )
-
-                # отправляем письмо всем админам по аналогии с send_mail, только здесь получателя указывать не надо
-                mail_admins(
-                    subject=f'Клиенту {client_username} отправлено письмо: {appointment_subject}',
-                    message=appointment_message,
-                )
     return HttpResponseRedirect(success_url, request)
 
 
@@ -232,7 +207,7 @@ class PostCreate(PermissionRequiredMixin, CreateView):
                     post_ed.post_type = 'U'
 
                 # отправим подписчикам уведомление о появлении новой публикации
-                mail_notification_post_create(self.request, Category, SubscribeCategory, self.success_url, post_ed.id)
+                mail_data_fill(self.request, Category, SubscribeCategory, self.success_url, post_ed.id)
 
         return super().form_valid(form)
 
