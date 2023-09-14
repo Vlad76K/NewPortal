@@ -1,6 +1,7 @@
 <!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
 {% extends 'flatpages/default.html' %}
 
+{% load cache %}
 {% load custom_filters %}
 {% load custom_tags %}
 
@@ -18,7 +19,9 @@ Posts
 <!--       </a>-->
 <!--   {% endif %}-->
     <br>
-    <button class ="button"><a href = "../news/client_subscriber/">Подписаться на новости</a></button>
+    {% cache 30 header %}
+        <button class ="button"><a href = "../news/client_subscriber/">Подписаться на новости</a></button>
+    {% endcache %}
     <br>
     <br>
 

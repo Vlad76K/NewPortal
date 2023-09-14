@@ -2,6 +2,7 @@ from django.urls import path
 # Импортируем созданное нами представление
 from .views import PostList, PostDetail, PostCreate, PostUpdate, PostDelete, PostSearch, CategoryListView, subscribe, \
     SubscribeView
+from django.views.decorators.cache import cache_page # импортируем декоратор для кэширования отдельного представления
 
 app_name = 'newsportalapp'
 urlpatterns = [
@@ -11,7 +12,7 @@ urlpatterns = [
     path('', PostList.as_view(), name='post_list'),
     # pk — это первичный ключ поста, который будет выводиться у нас в шаблон
     # int — указывает на то, что принимаются только целочисленные значения
-    path('<int:pk>', PostDetail.as_view(), name='post_detail'),
+    path('<int:pk>', cache_page(60*5)(PostDetail.as_view()), name='post_detail'),
     path('search/', PostSearch.as_view(), name='post_search'),
 
     path('client_subscriber/', SubscribeView.as_view(), name='client_subscriber'),
