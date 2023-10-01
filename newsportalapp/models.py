@@ -10,6 +10,10 @@ from datetime import datetime
 from django.shortcuts import render
 from django.urls import reverse
 
+from django.db import models
+from django.utils.translation import gettext as _
+from django.utils.translation import pgettext_lazy # импортируем «ленивый» геттекст с подсказкой
+
 article = 'A'
 news = 'N'
 POSTTYPE = [(article, 'Статья'),
@@ -28,7 +32,7 @@ def subscribe(request, pk):
 class Category(models.Model):
     # Категории новостей / статей — темы, которые они отражают(спорт, политика, образование и т.д.).
     # Имеет единственное поле (должно быть уникальным (в определении поля необходимо написать параметр unique = True)):
-    category_name = models.CharField(max_length=50, unique=True)  # - название категории.
+    category_name = models.CharField(max_length=50, unique=True, help_text=_('category name'))  # - название категории.
     category_subscribe = models.ManyToManyField(User, through='SubscribeCategory')
 
     def __str__(self):
@@ -99,20 +103,6 @@ class Appointment(models.Model):
         return f'{self.client_name}: {self.message}'
 
 
-# class AuthorCategory(models.Model):
-#     # - связь «один ко многим» с моделью Author;
-#     author_connection = models.ForeignKey(Author, on_delete=models.CASCADE)
-#     # - связь «один ко многим» с моделью Category.
-#     category_connection = models.ForeignKey(Category, on_delete=models.CASCADE)
-
-
-# class Subscribers(models.Model):
-#     # - пользователи, подписанные на обновления в конкретной категории
-#     subscribe_category = models.ManyToManyField(Category, through='SubscribeCategory')
-#     # - cвязь «один к одному» с встроенной моделью пользователей User
-#     subscribe_user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-
 class SubscribeCategory(models.Model):
     # - связь «один ко многим» с моделью Subscribers
     subscriber_connection = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -123,13 +113,16 @@ class SubscribeCategory(models.Model):
 # Эта модель должна содержать в себе статьи и новости, которые создают пользователи. Каждый объект может иметь одну или несколько категорий.
 class Post(models.Model):
     # Модель должна включать следующие поля:
-    post_author = models.ForeignKey(Author, on_delete=models.CASCADE)          # - связь «один ко многим» с моделью Author;
-    post_type = models.CharField(max_length=2, choices=POSTTYPE) #, default='N')  # - поле с выбором — «статья» или «новость»;
-    post_date = models.DateTimeField(auto_now_add=datetime.now())     # - автоматически добавляемая дата и время создания;
-    post_category = models.ManyToManyField(Category, through='PostCategory')   # - связь «многие ко многим» с моделью Category(с дополнительной моделью PostCategory);
-    post_title = models.CharField(max_length=124)                              # - заголовок статьи / новости;
-    post_text = models.TextField()                                             # - текст статьи / новости;
-    post_rating = models.IntegerField()                # - рейтинг статьи / новости.
+    post_author = models.ForeignKey(Author, on_delete=models.CASCADE)  # - связь «один ко многим» с моделью Author;
+    post_type = models.CharField(max_length=2, choices=POSTTYPE)       #, default='N')  # - поле с выбором — «статья» или «новость»;
+    post_date = models.DateTimeField(auto_now_add=datetime.now())      # - автоматически добавляемая дата и время создания;
+    post_category = models.ManyToManyField(Category, through='PostCategory',
+                     verbose_name=pgettext_lazy('help text for Post model',
+                                                'This is the help text')) # - связь «многие ко многим» с моделью Category
+                                                                          # (с дополнительной моделью PostCategory);
+    post_title = models.CharField(max_length=124)  # - заголовок статьи / новости;
+    post_text = models.TextField()                 # - текст статьи / новости;
+    post_rating = models.IntegerField()            # - рейтинг статьи / новости.
 
     # - Метод like() увеличивает рейтинг на единицу.
     @property

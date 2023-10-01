@@ -1,4 +1,6 @@
 from django.http import HttpResponse
+from django.views import View
+
 from .forms import SignupForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes#, force_text
@@ -35,6 +37,21 @@ from .filters import PostFilter
 from django.conf import settings
 
 from .tasks import mail_notification_post_create
+
+from django.utils.translation import gettext as _  # импортируем функцию для перевода
+
+
+# Create your views here.
+class Index(View):
+    def get(self, request):
+        # . Translators: This message appears on the home page only
+        models = Post.objects.all()
+
+        context = {
+            'models': models,
+        }
+
+        return HttpResponse(render(request, 'index.html', context))
 
 
 def wms():
@@ -142,6 +159,16 @@ class PostList(ListView):
     # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
     context_object_name = 'news'
     paginate_by = 2  # вот так мы можем указать количество записей на странице
+
+    def get(self, request):
+        # . Translators: This message appears on the home page only
+        models = Post.objects.all()
+
+        context = {
+            'models': models,
+        }
+
+        return HttpResponse(render(request, 'news.html', context))
 
     # Переопределяем функцию получения списка постов
     def get_queryset(self):

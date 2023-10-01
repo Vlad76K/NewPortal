@@ -4,6 +4,8 @@
 {% load custom_filters %}
 {% load custom_tags %}
 
+{% load i18n %}
+
 <!-- Название у нас будет Post -->
 {% block title %}
 Post
@@ -14,6 +16,8 @@ Post
 <!--{{ post_info }}-->
    {% if  new.post_type == 'N'%}
       <h1>Новость</h1>
+      <b>Category</b>
+      <b>{{ new.post_title|censor }}</b>
       <b>{{ new.post_title|censor }}</b>
       <br>
       Корреспондент: {{ new.post_author.author_user }}
